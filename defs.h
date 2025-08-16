@@ -3,7 +3,6 @@
 // License: GPLv3, see "LICENSE.TXT" file
 // https://github.com/RetiredC
 
-
 #pragma once 
 
 #pragma warning(disable : 4996)
@@ -17,14 +16,12 @@ typedef short i16;
 typedef unsigned char u8;
 typedef char i8;
 
-
-
-#define MAX_GPU_CNT			32
+#define MAX_GPU_CNT         32
 
 //must be divisible by MD_LEN
-#define STEP_CNT			1000
+#define STEP_CNT            1000
 
-#define JMP_CNT				512
+#define JMP_CNT             512
 
 //use different options for cards older than RTX 40xx
 #ifdef __CUDA_ARCH__
@@ -32,38 +29,38 @@ typedef char i8;
 		#define OLD_GPU
 	#endif
 	#ifdef OLD_GPU
-		#define BLOCK_SIZE			512
+		#define BLOCK_SIZE          512
 		//can be 8, 16, 24, 32, 40, 48, 56, 64
-		#define PNT_GROUP_CNT		64	
+		#define PNT_GROUP_CNT       64	
 	#else
-		#define BLOCK_SIZE			256
+		#define BLOCK_SIZE          256
 		//can be 8, 16, 24, 32
-		#define PNT_GROUP_CNT		24
+		#define PNT_GROUP_CNT       24
 	#endif
 #else //CPU, fake values
-	#define BLOCK_SIZE			512
-	#define PNT_GROUP_CNT		64
+	#define BLOCK_SIZE          512
+	#define PNT_GROUP_CNT       64
 #endif
 
 // kang type
-#define TAME				0  // Tame kangs
-#define WILD1				1  // Wild kangs1 
-#define WILD2				2  // Wild kangs2
+#define TAME                0  // Tame kangs
+#define WILD1               1  // Wild kangs1 
+#define WILD2               2  // Wild kangs2
 
-#define GPU_DP_SIZE			48
-#define MAX_DP_CNT			(256 * 1024)
+#define GPU_DP_SIZE         48
+#define MAX_DP_CNT          (256 * 1024)
 
-#define JMP_MASK			(JMP_CNT-1)
+#define JMP_MASK            (JMP_CNT-1)
 
-#define DPTABLE_MAX_CNT		16
+#define DPTABLE_MAX_CNT     16
 
-#define MAX_CNT_LIST		(512 * 1024)
+#define MAX_CNT_LIST        (512 * 1024)
 
-#define DP_FLAG				0x8000
-#define INV_FLAG			0x4000
-#define JMP2_FLAG			0x2000
+#define DP_FLAG             0x8000
+#define INV_FLAG            0x4000
+#define JMP2_FLAG           0x2000
 
-#define MD_LEN				10
+#define MD_LEN              10
 
 //#define DEBUG_MODE
 
@@ -92,5 +89,10 @@ struct TKparams
 
 	u32 KernelA_LDS_Size;
 	u32 KernelB_LDS_Size;
-	u32 KernelC_LDS_Size;	
+	u32 KernelC_LDS_Size;
+
+	// These are the new fields for multiple public keys
+	u32 PntToSolve_len;
+	EcPoint* PntsToSolve;
+	int* SolvedKeyIndex;
 };

@@ -312,4 +312,3 @@ bool IsFileExist(char* fn)
 	fclose(fp);
 	return true;
 }
-

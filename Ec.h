@@ -14,65 +14,102 @@ class EcInt
 public:
 	EcInt();
 
-	void Assign(EcInt& val);
+	void Assign(const EcInt& val);
 	void Set(u64 val);
 	void SetZero();
 	bool SetHexStr(const char* str);
 	void GetHexStr(char* str);
 	u16 GetU16(int index);
 
-	bool Add(EcInt& val); //returns true if carry
-	bool Sub(EcInt& val); //returns true if carry
+	bool Add(const EcInt& val); //returns true if carry
+	bool Sub(const EcInt& val); //returns true if carry
 	void Neg();
 	void Neg256();
 	void ShiftRight(int nbits);
 	void ShiftLeft(int nbits);
-	bool IsLessThanU(EcInt& val);
-	bool IsLessThanI(EcInt& val);
-	bool IsEqual(EcInt& val);
+	bool IsLessThanU(const EcInt& val);
+	bool IsLessThanI(const EcInt& val);
+	bool IsEqual(const EcInt& val);
 	bool IsZero();
 
-	void Mul_u64(EcInt& val, u64 multiplier);
-	void Mul_i64(EcInt& val, i64 multiplier);
+	void Mul_u64(const EcInt& val, u64 multiplier);
+	void Mul_i64(const EcInt& val, i64 multiplier);
 
-	void AddModP(EcInt& val);
-	void SubModP(EcInt& val);
+	void AddModP(const EcInt& val);
+	void SubModP(const EcInt& val);
 	void NegModP();
 	void NegModN();
-	void MulModP(EcInt& val);
+	void MulModP(const EcInt& val);
 	void InvModP();
 	void SqrtModP();
 
 	void RndBits(int nbits);
-	void RndMax(EcInt& max);
 
-	u64 data[4 + 1];
+	bool Div_i64(EcInt& val, u64 divisor);
+
+	void DivModP(const EcInt& val);
+	void GetInverseModN(const EcInt& val);
+	
+	//for debug
+	void SetRandom();
+	
+	u64 data[4];
 };
 
 class EcPoint
 {
 public:
-	bool IsEqual(EcPoint& pnt);
-	void LoadFromBuffer64(u8* buffer);
-	void SaveToBuffer64(u8* buffer);
+	EcPoint();
+
+	void Assign(const EcPoint& pnt);
+	void SetZero();
+	bool IsZero();
+	
+	//for debug
+	void SetRandom();
+
+	void Add(const EcPoint& pnt);
+	void Add(const EcPoint& pnt, const EcInt& k);
+	void Double();
+	void Negate();
+	void Normalize();
+	void FromJacobian(const EcInt& x, const EcInt& y, const EcInt& z);
+
 	bool SetHexStr(const char* str);
+	// NEW: Added GetHexStr method for EcPoint
+	void GetHexStr(char* str);
+
+	//for debug
+	void PrintHex();
+
 	EcInt x;
 	EcInt y;
+	EcInt z;
+	EcInt priv;
 };
 
 class Ec
 {
 public:
-	static EcPoint AddPoints(EcPoint& pnt1, EcPoint& pnt2);
-	static EcPoint DoublePoint(EcPoint& pnt);
-	static EcPoint MultiplyG(EcInt& k);
-#ifdef DEBUG_MODE
-	static EcPoint MultiplyG_Fast(EcInt& k);
-#endif
-	static EcInt CalcY(EcInt& x, bool is_even);
-	static bool IsValidPoint(EcPoint& pnt);
+	Ec();
+	~Ec();
+	static void Init();
+	static void Cleanup();
+
+	EcPoint MultiplyG(const EcInt& priv_key);
+	EcPoint Multiply(const EcPoint& pnt, const EcInt& priv_key);
+
+	void GenerateJumps(EcJMP* Jumps, int count, int range, int type, u64* dbg, u64 start);
+	void GenerateRandomPoints(EcPoint* points, int count, EcInt offset);
+
+	bool Verify(const EcPoint& pnt, const EcInt& priv_key);
 };
 
-void InitEc();
-void DeInitEc();
-void SetRndSeed(u64 seed);
+struct EcJMP
+{
+	EcPoint p;
+	EcInt dist;
+};
+
+extern EcInt g_P, g_N;
+extern EcPoint g_G;
